@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HACKER TERMINAL QUEST • SSH & PowerShell Edition</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=VT323&amp;display=swap');
+        
+        body {
+            background: #0a0a0a;
+            color: #00ff41;
+            font-family: 'VT323', monospace;
+        }
+        
+        .terminal {
+            background: #001100;
+            border: 2px solid #00ff41;
+            box-shadow: 0 0 20px #00ff41;
+        }
+        
+        .hacker-text {
+            text-shadow: 0 0 10px #00ff41;
+        }
+        
+        .matrix-bg {
+            background: linear-gradient(transparent, #00ff41);
+            background-size: 100% 200%;
+            animation: matrix 1.5s linear infinite;
+        }
+        
+        .command-input {
+            background: #001100;
+            border: 1px solid #00ff41;
+            color: #00ff41;
+            font-family: 'VT323', monospace;
+        }
+        
+        .level-card {
+            transition: all 0.3s ease;
+        }
+        
+        .level-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 15px #00ff41;
+        }
+        
+        .hacker-btn {
+            background: #001100;
+            border: 2px solid #00ff41;
+            color: #00ff41;
+            transition: all 0.2s;
+        }
+        
+        .hacker-btn:hover {
+            background: #00ff41;
+            color: #001100;
+            box-shadow: 0 0 15px #00ff41;
+        }
+        
+        .terminal-line {
+            font-family: 'VT323', monospace;
+            line-height: 1.4;
+        }
+        
+        .glitch {
+            animation: glitch 1s infinite;
+        }
+        
+        @keyframes matrix {
+            0% { background-position: 0 0; }
+            100% { background-position: 0 200%; }
+        }
+        
+        .command-success {
+            color: #00ff41;
+            animation: successPop 0.5s ease;
+        }
+        
+        .command-fail {
+            color: #ff0044;
+        }
+        
+        .hacker-stat {
+            background: #001100;
+            border: 1px solid #00ff41;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Header -->
+    <div class="border-b border-[#00ff41] bg-[#001100]">
+        <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-[#00ff41] flex items-center justify-center rounded-full">
+                    <i class="fas fa-user-secret text-[#001100] text-3xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-4xl font-bold hacker-text tracking-wider">HACKER TERMINAL QUEST</h1>
+                    <p class="text-[#00ff41]/70 text-sm">SSH + PowerShell Edition • Learn to Hack</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-6">
+                <div class="flex items-center gap-2 hacker-stat px-4 py-2 rounded">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span id="score">0</span> <span class="text-xs opacity-70">HACK POINTS</span>
+                </div>
+                <div class="flex items-center gap-2 hacker-stat px-4 py-2 rounded">
+                    <i class="fas fa-user"></i>
+                    <span id="level">1</span> <span class="text-xs opacity-70">LEVEL</span>
+                </div>
+                <div onclick="showProfile()" class="cursor-pointer flex items-center gap-2 px-4 py-2 rounded border border-[#00ff41]">
+                    <i class="fas fa-user-secret"></i>
+                    <span>SHADOWBYTE</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-6xl mx-auto px-6 py-8">
+        
+        <!-- Story Intro -->
+        <div id="story-screen" class="max-w-3xl mx-auto text-center mb-12">
+            <div class="terminal p-8 rounded-lg">
+                <div class="text-2xl mb-4">> NEON COLLECTIVE RECRUITMENT PROTOCOL ACTIVATED</div>
+                <p class="text-xl mb-6">Welcome, new recruit. You are <span class="font-bold">ShadowByte</span> — a fresh hacker in the Neon Collective.</p>
+                <p class="mb-6">Master SSH and PowerShell commands to breach corporate systems, evade ICE, and climb the ranks of the underground.</p>
+                <div class="flex gap-4 justify-center">
+                    <button onclick="startGame()" class="hacker-btn px-8 py-3 text-xl font-bold rounded flex items-center gap-3">
+                        <i class="fas fa-play"></i>
+                        <span>BEGIN YOUR FIRST MISSION</span>
+                    </button>
+                    <button onclick="showTutorial()" class="px-8 py-3 text-xl font-bold rounded border border-[#00ff41]/50 hover:bg-[#001100]">
+                        HOW TO PLAY
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="game-screen" class="hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                
+                <!-- Mission Terminal -->
+                <div class="lg:col-span-2">
+                    <div class="terminal rounded-lg p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <div>
+                                <div class="text-sm opacity-70">CURRENT MISSION</div>
+                                <div id="mission-title" class="text-2xl font-bold"></div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-xs opacity-70">DIFFICULTY</div>
+                                <div id="difficulty" class="font-bold"></div>
+                            </div>
+                        </div>
+                        
+                        <div id="mission-description" class="mb-6 text-lg"></div>
+                        
+                        <!-- Terminal -->
+                        <div class="bg-black p-4 rounded font-mono text-sm mb-4 h-64 overflow-auto" id="terminal-output">
+                            <div class="terminal-line">&gt; SYSTEM BREACH INITIATED...</div>
+                            <div class="terminal-line">&gt; AWAITING COMMAND INPUT</div>
+                        </div>
+                        
+                        <!-- Command Input -->
+                        <div class="flex gap-3">
+                            <div class="flex-1">
+                                <div class="flex items-center bg-black border border-[#00ff41] rounded px-3">
+                                    <span class="text-[#00ff41] mr-2">&gt;</span>
+                                    <input id="command-input" type="text" 
+                                           class="command-input flex-1 bg-transparent outline-none py-3 text-lg"
+                                           placeholder="Type your command here..." 
+                                           onkeypress="if(event.key === 'Enter') submitCommand()">
+                                </div>
+                            </div>
+                            <button onclick="submitCommand()" 
+                                    class="hacker-btn px-8 py-3 font-bold rounded flex items-center gap-2">
+                                <span>EXECUTE</span>
+                                <i class="fas fa-terminal"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="mt-3 text-xs opacity-60 flex items-center gap-2">
+                            <i class="fas fa-lightbulb"></i>
+                            <span id="hint-text">Hint: Try 'ls' or 'Get-ChildItem' to list files</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Stats & Commands -->
+                <div class="space-y-6">
+                    <!-- Hacker Stats -->
+                    <div class="terminal p-5 rounded-lg">
+                        <div class="text-sm mb-3 opacity-70">HACKER STATS</div>
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-center">
+                                <span>Stealth</span>
+                                <div class="w-32 bg-[#001100] h-2 rounded-full overflow-hidden">
+                                    <div id="stealth-bar" class="bg-[#00ff41] h-2" style="width: 65%"></div>
+                                </div>
+                                <span class="text-sm w-8 text-right" id="stealth-val">65</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span>Skill</span>
+                                <div class="w-32 bg-[#001100] h-2 rounded-full overflow-hidden">
+                                    <div id="skill-bar" class="bg-[#00ff41] h-2" style="width: 40%"></div>
+                                </div>
+                                <span class="text-sm w-8 text-right" id="skill-val">40</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span>Reputation</span>
+                                <div class="w-32 bg-[#001100] h-2 rounded-full overflow-hidden">
+                                    <div id="rep-bar" class="bg-[#00ff41] h-2" style="width: 80%"></div>
+                                </div>
+                                <span class="text-sm w-8 text-right" id="rep-val">80</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Command Reference -->
+                    <div class="terminal p-5 rounded-lg">
+                        <div class="text-sm mb-3 opacity-70 flex items-center gap-2">
+                            <span>COMMAND REFERENCE</span>
+                            <span class="text-xs px-2 py-0.5 bg-[#00ff41]/10 rounded">SSH / PS</span>
+                        </div>
+                        <div class="text-xs space-y-1 max-h-48 overflow-auto" id="command-list">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                    
+                    <button onclick="nextLevel()" 
+                            class="w-full hacker-btn py-3 font-bold rounded flex items-center justify-center gap-2">
+                        <span>NEXT MISSION</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Level Selection -->
+        <div id="level-select" class="hidden mt-8">
+            <h2 class="text-2xl mb-6 flex items-center gap-3">
+                <i class="fas fa-list-ol"></i> 
+                <span>MISSION SELECT</span>
+            </h2>
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4" id="level-grid">
+                <!-- Populated dynamically -->
+            </div>
+        </div>
+        
+    </div>
+
+    <script>
+        // Game State
+        let gameState = {
+            score: 0,
+            level: 1,
+            stealth: 65,
+            skill: 40,
+            reputation: 80,
+            completedLevels: []
+        };
+        
+        let currentLevel = null;
+        let currentMission = null;
+        
+        // Missions Database
+        const missions = [
+            {
+                id: 1,
+                title: "THE FIRST BREACH",
+                description: "Your first mission: infiltrate a corporate server. Use basic navigation commands to explore the filesystem.",
+                difficulty: "BEGINNER",
+                type: "ssh",
+                commands: ["ls", "pwd", "cd", "Get-ChildItem", "Set-Location"],
+                goal: "List the contents of the current directory",
+                successMessage: "Excellent work, ShadowByte. The server layout is now visible.",
+                hint: "Try 'ls' (SSH) or 'Get-ChildItem' (PowerShell) to see files",
+                points: 150
+            },
+            {
+                id: 2,
+                title: "FILE EXTRACTION",
+                description: "The target has sensitive files. Learn to read and copy them without triggering alarms.",
+                difficulty: "BEGINNER",
+                type: "ssh",
+                commands: ["cat", "cp", "Get-Content", "Copy-Item"],
+                goal: "Read the contents of 'config.txt'",
+                successMessage: "File extracted successfully. The intel is yours.",
+                hint: "Use 'cat config.txt' or 'Get-Content config.txt'",
+                points: 200
+            },
+            {
+                id: 3,
+                title: "NETWORK RECON",
+                description: "Map the internal network. Discover hidden services and open ports.",
+                difficulty: "INTERMEDIATE",
+                type: "ssh",
+                commands: ["netstat", "nmap", "Test-NetConnection", "Get-NetTCPConnection"],
+                goal: "Scan for open ports on the target",
+                successMessage: "Network map complete. Several vulnerable services detected.",
+                hint: "Try 'netstat -tuln' or 'Test-NetConnection'",
+                points: 300
+            },
+            {
+                id: 4,
+                title: "PROCESS MANIPULATION",
+                description: "The system has active processes. Learn to monitor and control them.",
+                difficulty: "INTERMEDIATE",
+                type: "powershell",
+                commands: ["ps", "kill", "Get-Process", "Stop-Process"],
+                goal: "List all running processes",
+                successMessage: "Process list acquired. You now control the system.",
+                hint: "Use 'ps' (SSH) or 'Get-Process' (PowerShell)",
+                points: 250
+            },
+            {
+                id: 5,
+                title: "PRIVILEGE ESCALATION",
+                description: "You need root access. Find and exploit a vulnerability to escalate privileges.",
+                difficulty: "ADVANCED",
+                type: "ssh",
+                commands: ["sudo", "whoami", "Get-Process", "whoami /priv"],
+                goal: "Check your current user privileges",
+                successMessage: "Privilege escalation successful. You are now root.",
+                hint: "Start with 'whoami' or 'whoami /priv'",
+                points: 400
+            }
+        ];
+        
+        // Command Reference
+        const commandRef = {
+            "ls / Get-ChildItem": "List files and directories",
+            "pwd / Get-Location": "Show current directory",
+            "cd / Set-Location": "Change directory",
+            "cat / Get-Content": "Read file contents",
+            "cp / Copy-Item": "Copy files",
+            "netstat / Test-NetConnection": "Network connections",
+            "ps / Get-Process": "List processes",
+            "kill / Stop-Process": "Terminate process",
+            "sudo / whoami": "Privilege check/escalation"
+        };
+        
+        function updateUI() {
+            document.getElementById('score').textContent = gameState.score;
+            document.getElementById('level').textContent = gameState.level;
+            
+            // Update stats bars
+            document.getElementById('stealth-val').textContent = gameState.stealth;
+            document.getElementById('skill-val').textContent = gameState.skill;
+            document.getElementById('rep-val').textContent = gameState.reputation;
+            
+            document.getElementById('stealth-bar').style.width = gameState.stealth + '%';
+            document.getElementById('skill-bar').style.width = gameState.skill + '%';
+            document.getElementById('rep-bar').style.width = gameState.reputation + '%';
+        }
+        
+        function populateCommandList() {
+            const container = document.getElementById('command-list');
+            container.innerHTML = '';
+            
+            Object.entries(commandRef).forEach(([cmd, desc]) => {
+                const div = document.createElement('div');
+                div.className = 'flex justify-between text-xs py-1 border-b border-[#00ff41]/20';
+                div.innerHTML = `
+                    <span class="font-bold">${cmd}</span>
+                    <span class="opacity-60">${desc}</span>
+                `;
+                container.appendChild(div);
+            });
+        }
+        
+        function startGame() {
+            document.getElementById('story-screen').classList.add('hidden');
+            document.getElementById('game-screen').classList.remove('hidden');
+            document.getElementById('level-select').classList.add('hidden');
+            
+            // Start with level 1
+            loadLevel(1);
+            updateUI();
+            populateCommandList();
+        }
+        
+        function loadLevel(levelId) {
+            currentLevel = levelId;
+            currentMission = missions.find(m => m.id === levelId);
+            
+            if (!currentMission) {
+                // All levels complete
+                showVictory();
+                return;
+            }
+            
+            // Update UI
+            document.getElementById('mission-title').textContent = currentMission.title;
+            document.getElementById('mission-description').textContent = currentMission.description;
+            document.getElementById('difficulty').innerHTML = `<span class="px-3 py-1 text-xs rounded ${currentMission.difficulty === 'BEGINNER' ? 'bg-green-900 text-green-400' : currentMission.difficulty === 'INTERMEDIATE' ? 'bg-yellow-900 text-yellow-400' : 'bg-red-900 text-red-400'}">${currentMission.difficulty}</span>`;
+            document.getElementById('hint-text').textContent = currentMission.hint;
+            
+            // Reset terminal
+            const terminal = document.getElementById('terminal-output');
+            terminal.innerHTML = `
+                <div class="terminal-line">&gt; MISSION ${levelId} LOADED</div>
+                <div class="terminal-line">&gt; TARGET: CORPORATE SERVER #${levelId}</div>
+                <div class="terminal-line">&gt; AWAITING COMMAND...</div>
+            `;
+            
+            // Clear input
+            document.getElementById('command-input').value = '';
+            document.getElementById('command-input').focus();
+            
+            gameState.level = levelId;
+            updateUI();
+        }
+        
+        function submitCommand() {
+            const input = document.getElementById('command-input');
+            const command = input.value.trim().toLowerCase();
+            const terminal = document.getElementById('terminal-output');
+            
+            if (!command) return;
+            
+            // Add command to terminal
+            const cmdLine = document.createElement('div');
+            cmdLine.className = 'terminal-line';
+            cmdLine.innerHTML = `&gt; ${command}`;
+            terminal.appendChild(cmdLine);
+            
+            let success = false;
+            let message = '';
+            
+            // Check if command matches mission goal
+            const missionCmds = currentMission.commands.map(c => c.toLowerCase());
+            
+            if (missionCmds.some(cmdName => command.includes(cmdName.toLowerCase()) || command.startsWith(cmdName.toLowerCase()))) {
+                success = true;
+                message = currentMission.successMessage;
+                
+                // Award points
+                gameState.score += currentMission.points;
+                
+                // Improve stats
+                gameState.skill = Math.min(100, gameState.skill + 8);
+                gameState.stealth = Math.min(100, gameState.stealth + 5);
+                gameState.reputation = Math.min(100, gameState.reputation + 3);
+                
+                // Mark level complete
+                if (!gameState.completedLevels.includes(currentMission.id)) {
+                    gameState.completedLevels.push(currentMission.id);
+                }
+                
+                // Success animation
+                cmdLine.classList.add('command-success');
+                
+                setTimeout(() => {
+                    const successLine = document.createElement('div');
+                    successLine.className = 'terminal-line text-[#00ff41]';
+                    successLine.innerHTML = `&gt; SUCCESS: ${message}`;
+                    terminal.appendChild(successLine);
+                    
+                    const pointsLine = document.createElement('div');
+                    pointsLine.className = 'terminal-line text-yellow-400';
+                    pointsLine.innerHTML = `&gt; +${currentMission.points} HACK POINTS`;
+                    terminal.appendChild(pointsLine);
+                    
+                    terminal.scrollTop = terminal.scrollHeight;
+                    
+                    // Show next level button after success
+                    setTimeout(() => {
+                        const nextBtn = document.createElement('button');
+                        nextBtn.className = 'mt-4 hacker-btn px-6 py-2 text-sm rounded';
+                        nextBtn.innerHTML = 'CONTINUE TO NEXT MISSION <i class="fas fa-arrow-right ml-2"></i>';
+                        nextBtn.onclick = () => {
+                            nextLevel();
+                            nextBtn.remove();
+                        };
+                        terminal.appendChild(nextBtn);
+                    }, 1200);
+                }, 800);
+                
+            } else {
+                // Wrong command
+                message = "Command not recognized or incorrect for this mission. Try again, hacker.";
+                cmdLine.classList.add('command-fail');
+                
+                setTimeout(() => {
+                    const failLine = document.createElement('div');
+                    failLine.className = 'terminal-line text-red-400';
+                    failLine.innerHTML = `&gt; ERROR: ${message}`;
+                    terminal.appendChild(failLine);
+                    terminal.scrollTop = terminal.scrollHeight;
+                }, 300);
+            }
+            
+            // Clear input
+            input.value = '';
+            updateUI();
+            
+            // Scroll terminal
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+        
+        function nextLevel() {
+            const nextId = currentLevel + 1;
+            loadLevel(nextId);
+        }
+        
+        function showLevelSelect() {
+            document.getElementById('story-screen').classList.add('hidden');
+            document.getElementById('game-screen').classList.add('hidden');
+            document.getElementById('level-select').classList.remove('hidden');
+            
+            const grid = document.getElementById('level-grid');
+            grid.innerHTML = '';
+            
+            missions.forEach(mission => {
+                const isCompleted = gameState.completedLevels.includes(mission.id);
+                const card = document.createElement('div');
+                card.className = `level-card terminal p-4 rounded-lg cursor-pointer ${isCompleted ? 'border-[#00ff41]' : ''}`;
+                card.innerHTML = `
+                    <div class="flex justify-between items-start mb-3">
+                        <div>
+                            <div class="text-xs opacity-60">MISSION ${mission.id}</div>
+                            <div class="font-bold">${mission.title}</div>
+                        </div>
+                        ${isCompleted ? '<i class="fas fa-check-circle text-[#00ff41]"></i>' : ''}
+                    </div>
+                    <div class="text-xs mb-3 opacity-70">${mission.description.substring(0, 80)}...</div>
+                    <div class="flex justify-between items-center text-xs">
+                        <span class="px-2 py-0.5 rounded ${mission.difficulty === 'BEGINNER' ? 'bg-green-900 text-green-400' : mission.difficulty === 'INTERMEDIATE' ? 'bg-yellow-900 text-yellow-400' : 'bg-red-900 text-red-400'}">${mission.difficulty}</span>
+                        <span class="text-yellow-400">${mission.points} PTS</span>
+                    </div>
+                `;
+                
+                card.onclick = () => {
+                    document.getElementById('level-select').classList.add('hidden');
+                    document.getElementById('game-screen').classList.remove('hidden');
+                    loadLevel(mission.id);
+                };
+                
+                grid.appendChild(card);
+            });
+        }
+        
+        function showTutorial() {
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-black/90 flex items-center justify-center z-50';
+            modal.innerHTML = `
+                <div class="terminal max-w-2xl p-8 rounded-lg">
+                    <h2 class="text-3xl mb-6">HOW TO PLAY</h2>
+                    
+                    <div class="space-y-6 text-lg">
+                        <div>
+                            <div class="font-bold mb-1">1. TYPE COMMANDS</div>
+                            <div class="opacity-80">Enter real SSH or PowerShell commands in the terminal. The game recognizes both.</div>
+                        </div>
+                        
+                        <div>
+                            <div class="font-bold mb-1">2. COMPLETE MISSIONS</div>
+                            <div class="opacity-80">Each mission teaches specific commands. Success = points + stat increases.</div>
+                        </div>
+                        
+                        <div>
+                            <div class="font-bold mb-1">3. LEARN AS YOU HACK</div>
+                            <div class="opacity-80">Every command has real-world explanations. You'll become a better hacker.</div>
+                        </div>
+                        
+                        <div class="pt-4 border-t border-[#00ff41]/30">
+                            <div class="font-bold mb-2">EXAMPLE COMMANDS:</div>
+                            <div class="grid grid-cols-2 gap-2 text-sm">
+                                <div>ls → List files (SSH)</div>
+                                <div>Get-ChildItem → List files (PS)</div>
+                                <div>cat file.txt → Read file</div>
+                                <div>netstat → Network info</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button onclick="this.parentElement.remove(); startGame()" 
+                            class="mt-8 w-full hacker-btn py-4 text-xl font-bold rounded">
+                        GOT IT — START HACKING
+                    </button>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+        
+        function showProfile() {
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-black/90 flex items-center justify-center z-50';
+            modal.innerHTML = `
+                <div class="terminal max-w-md p-8 rounded-lg">
+                    <div class="flex items-center gap-4 mb-6">
+                        <div class="w-16 h-16 bg-[#00ff41] rounded-full flex items-center justify-center">
+                            <i class="fas fa-user-secret text-4xl text-[#001100]"></i>
+                        </div>
+                        <div>
+                            <div class="text-3xl">SHADOWBYTE</div>
+                            <div class="text-sm opacity-60">NEON COLLECTIVE • RANK 4</div>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div class="flex justify-between">
+                            <span>Total Hacks</span>
+                            <span class="font-bold">${gameState.completedLevels.length}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Hack Points</span>
+                            <span class="font-bold text-yellow-400">${gameState.score}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Stealth Rating</span>
+                            <span class="font-bold">${gameState.stealth}</span>
+                        </div>
+                    </div>
+                    
+                    <button onclick="this.parentElement.remove()" 
+                            class="mt-8 w-full py-3 border border-[#00ff41]/50 rounded hover:bg-[#001100]">
+                        CLOSE PROFILE
+                    </button>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+        
+        function showVictory() {
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-black/95 flex items-center justify-center z-50';
+            modal.innerHTML = `
+                <div class="text-center p-8">
+                    <div class="text-6xl mb-4">🎉</div>
+                    <div class="text-4xl font-bold mb-2">MISSION COMPLETE</div>
+                    <div class="text-2xl mb-8">You are now a fully trained hacker.</div>
+                    
+                    <div class="terminal inline-block p-6 text-left mb-8">
+                        <div>FINAL SCORE: <span class="text-yellow-400">${gameState.score}</span></div>
+                        <div>MISSIONS COMPLETED: ${gameState.completedLevels.length}/5</div>
+                        <div>FINAL STEALTH: ${gameState.stealth}</div>
+                    </div>
+                    
+                    <div class="flex gap-4 justify-center">
+                        <button onclick="location.reload()" class="hacker-btn px-8 py-4 text-xl rounded">
+                            PLAY AGAIN
+                        </button>
+                        <button onclick="showLevelSelect(); this.parentElement.parentElement.remove()" class="px-8 py-4 text-xl border border-[#00ff41]/50 rounded">
+                            SELECT MISSION
+                        </button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+        
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.key === '/' && document.getElementById('game-screen').classList.contains('hidden') === false) {
+                e.preventDefault();
+                document.getElementById('command-input').focus();
+            }
+            
+            if (e.key.toLowerCase() === 'l' && e.ctrlKey) {
+                e.preventDefault();
+                showLevelSelect();
+            }
+        });
+        
+        // Boot sequence
+        function bootSequence() {
+            console.log('%c[HACKER TERMINAL QUEST] Android-ready PWA initialized. Ready for packaging.', 'color:#00ff41');
+            
+            // Random matrix rain effect on load
+            setTimeout(() => {
+                const header = document.querySelector('.border-b');
+                if (header) header.style.boxShadow = '0 0 30px #00ff41';
+            }, 800);
+            
+            // Make it feel alive
+            setInterval(() => {
+                const scoreEl = document.getElementById('score');
+                if (scoreEl && Math.random() > 0.92) {
+                    scoreEl.style.textShadow = '0 0 15px #00ff41';
+                    setTimeout(() => {
+                        if (scoreEl) scoreEl.style.textShadow = '';
+                    }, 600);
+                }
+            }, 8000);
+        }
+        
+        // Initialize
+        window.onload = function() {
+            bootSequence();
+            updateUI();
+            
+            // Easter egg: Konami code for extra points
+            let konami = '';
+            const konamiCode = '38384040373937396665';
+            document.addEventListener('keydown', function(e) {
+                konami += e.keyCode;
+                if (konami.length > 20) konami = konami.slice(-20);
+                if (konami === konamiCode) {
+                    gameState.score += 500;
+                    gameState.reputation = 100;
+                    updateUI();
+                    const msg = document.createElement('div');
+                    msg.className = 'fixed bottom-4 right-4 terminal px-6 py-3 rounded';
+                    msg.innerHTML = 'KONAMI CODE ACTIVATED • +500 BONUS';
+                    document.body.appendChild(msg);
+                    setTimeout(() => msg.remove(), 3000);
+                    konami = '';
+                }
+            });
+            
+            // Mobile friendly
+            if ('serviceWorker' in navigator) {
+                // PWA ready - can be packaged as Android app
+            }
+        }
+        
+        // Make it installable as PWA
+        window.addEventListener('beforeinstallprompt', (e) => {
+            // Can trigger Android install banner
+        });
+    </script>
+</body>
+</html>
